@@ -9,7 +9,6 @@ use Duyler\Contract\PackageLoader\PackageLoaderInterface;
 use Duyler\EventBus\Dto\Action;
 use Duyler\Http\Action\CreateRequestAction;
 use Duyler\Http\Action\StartRoutingAction;
-use Duyler\Http\Action\StartRoutingFallbackAction;
 use Duyler\Http\Provider\RouterRequestProvider;
 use Duyler\Router\Result;
 use Duyler\Router\Router;
@@ -47,7 +46,6 @@ class Loader implements PackageLoaderInterface
             ],
             contract: Result::class,
             externalAccess: true,
-            continueIfFail: true,
         );
 
         $loaderService->getBuilder()->doAction($routingAction);
