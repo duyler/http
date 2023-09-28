@@ -18,7 +18,7 @@
         "duyler/config": "dev-main",
         "duyler/contract": "dev-main",
         "duyler/router": "dev-main",
-        "httpsoft/http-server-request": "^1.1",
+        "httpsoft/http-server-request": "^1.1"
     },
     "require-dev": {
         "phpunit/phpunit": "^10.0"
