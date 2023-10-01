@@ -28,9 +28,7 @@ class Loader implements PackageLoaderInterface
             classMap: [
                 ServerRequestInterface::class => ServerRequest::class
             ],
-            arguments: [
-                'result' => Result::class,
-            ],
+            argument: Result::class,
             contract: ServerRequestInterface::class,
             externalAccess: true,
         );
