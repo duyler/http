@@ -6,35 +6,36 @@ namespace Duyler\Http\Action;
 
 use Duyler\EventBus\Dto\Result;
 use Duyler\EventBus\Enum\ResultStatus;
-use Duyler\Router\Result as RoutingResult;
-use HttpSoft\ServerRequest\ServerRequestCreator;
+use Duyler\Router\CurrentRoute;
+use Psr\Http\Message\ServerRequestInterface;
 
 class CreateRequestAction
 {
-    public function __invoke(RoutingResult $result): Result
-    {
-        $request = ServerRequestCreator::create();
+    public function __construct(private ServerRequestInterface $request) {}
 
-        if ($result->status) {
-            foreach ($result->attributes as $key => $value) {
-                $request = $request->withAttribute($key, $value);
+    public function __invoke(CurrentRoute $currentRoute): Result
+    {
+        if ($currentRoute->status) {
+            foreach ($currentRoute->attributes as $key => $value) {
+                $this->request = $this->request->withAttribute($key, $value);
             }
 
-            $request = $request
-                ->withAttribute('handler', $result->handler)
-                ->withAttribute('scenario', $result->scenario)
-                ->withAttribute('action', $result->action)
-                ->withAttribute('language', $result->language);
+            $this->request = $this->request
+                ->withAttribute('handler', $currentRoute->handler)
+                ->withAttribute('scenario', $currentRoute->scenario)
+                ->withAttribute('action', $currentRoute->action)
+                ->withAttribute('language', $currentRoute->language)
+            ;
 
             return new Result(
                 status: ResultStatus::Success,
-                data: $request
+                data: $this->request
             );
         }
 
         return new Result(
             status: ResultStatus::Fail,
-            data: $request
+            data: $this->request
         );
     }
 }

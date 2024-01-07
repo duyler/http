@@ -9,14 +9,18 @@ use Duyler\Contract\PackageLoader\PackageLoaderInterface;
 use Duyler\EventBus\Dto\Action;
 use Duyler\Http\Action\CreateRequestAction;
 use Duyler\Http\Action\StartRoutingAction;
-use Duyler\Http\Provider\RouterRequestProvider;
-use Duyler\Router\Result;
-use Duyler\Router\Router;
-use HttpSoft\Message\ServerRequest;
+use Duyler\Http\Provider\StartRoutingProvider;
+use Duyler\Http\State\PrepareRequestStateHandler;
+use Duyler\Router\CurrentRoute;
+use Duyler\Router\RouteCollection;
 use Psr\Http\Message\ServerRequestInterface;
 
 class Loader implements PackageLoaderInterface
 {
+    public function __construct(
+        private RouteCollection $routeCollection,
+    ) {}
+
     public function load(LoaderServiceInterface $loaderService): void
     {
         $requestAction = new Action(
@@ -25,10 +29,10 @@ class Loader implements PackageLoaderInterface
             required: [
                 'Http.StartRouting',
             ],
-            classMap: [
-                ServerRequestInterface::class => ServerRequest::class
+            providers: [
+                CreateRequestAction::class => StartRoutingProvider::class,
             ],
-            argument: Result::class,
+            argument: CurrentRoute::class,
             contract: ServerRequestInterface::class,
             externalAccess: true,
         );
@@ -36,17 +40,19 @@ class Loader implements PackageLoaderInterface
         $routingAction = new Action(
             id: 'Http.StartRouting',
             handler: StartRoutingAction::class,
-            classMap: [
-                ServerRequestInterface::class => ServerRequest::class
-            ],
             providers: [
-                Router::class => RouterRequestProvider::class
+                StartRoutingAction::class => StartRoutingProvider::class,
             ],
-            contract: Result::class,
+            contract: CurrentRoute::class,
             externalAccess: true,
         );
 
-        $loaderService->getBuilder()->doAction($routingAction);
-        $loaderService->getBuilder()->doAction($requestAction);
+        $loaderService->getBuilder()->addAction($requestAction);
+        $loaderService->getBuilder()->addAction($routingAction);
+
+        $prepareRequest = $loaderService->getContainer()->get(PrepareRequestStateHandler::class);
+
+        $loaderService->getBuilder()->addStateHandler($prepareRequest);
+        $loaderService->getBuilder()->addSharedService($this->routeCollection);
     }
 }
