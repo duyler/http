@@ -26,6 +26,11 @@ class ResponseTransmitter
         return $this->response ?? new EmptyResponse();
     }
 
+    public function isTransmitted(): bool
+    {
+        return $this->response === null;
+    }
+
     public function reset(): void
     {
         $this->response = null;
