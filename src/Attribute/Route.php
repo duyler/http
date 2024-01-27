@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Duyler\Http\Attribute;
 
+use Closure;
 use Duyler\Framework\Build\AttributeHandlerInterface;
 use Duyler\Framework\Build\AttributeInterface;
 use Duyler\Http\AttributeHandler;
@@ -15,8 +16,9 @@ readonly class Route implements AttributeInterface
         public string $method,
         public string $pattern,
         public string $name = '',
-        public string $handler = '',
-        public string $scenario = '',
+        public string|Closure|null $handler = null,
+        public ?string $target = null,
+        public ?string $action = null,
         public array $where = [],
     ) {}
 

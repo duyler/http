@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Duyler\Http;
 
-use Duyler\Contract\PackageLoader\LoaderServiceInterface;
 use Duyler\EventBus\Dto\Action;
+use Duyler\Framework\Loader\LoaderServiceInterface;
 use Duyler\Framework\Loader\PackageLoaderInterface;
 use Duyler\Http\Action\CreateRequestAction;
 use Duyler\Http\State\PrepareRequestStateHandler;

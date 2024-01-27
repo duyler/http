@@ -39,7 +39,7 @@ class RequestProvider
 
         $this->request = $this->request
             ->withAttribute('handler', $currentRoute->handler)
-            ->withAttribute('scenario', $currentRoute->scenario)
+            ->withAttribute('target', $currentRoute->target)
             ->withAttribute('action', $currentRoute->action)
             ->withAttribute('language', $currentRoute->language)
         ;

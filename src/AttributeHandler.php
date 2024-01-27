@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Duyler\Http;
 
-use Duyler\EventBus\Dto\Action;
 use Duyler\Framework\Build\AttributeHandlerInterface;
 use Duyler\Http\Attribute\Route as RouteAttribute;
 use Duyler\Router\Route;
@@ -21,14 +20,15 @@ class AttributeHandler implements AttributeHandlerInterface
         ];
     }
 
-    public function handleRoute(RouteAttribute $route, Action $action): void
+    public function handleRoute(RouteAttribute $route, mixed $item): void
     {
+        $method = strtolower($route->method);
         /** @var RouteDefinition $definition */
-        $definition = Route::{$route->method}($route->pattern);
-        $definition->handler($route->handler);
+        $definition = Route::{$method}($route->pattern);
+        $definition->handler($route->handler ?? $item->handler ?? null);
         $definition->name($route->name);
-        $definition->scenario($route->scenario);
-        $definition->action($action->id);
+        $definition->target($route->target ?? $item->target ?? $item::class);
+        $definition->action($item->id ?? $route->action ?? '');
         $definition->where($route->where);
     }
 }

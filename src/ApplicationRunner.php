@@ -41,15 +41,23 @@ final class ApplicationRunner
      */
     public function run(ServerRequestInterface $request): ResponseInterface
     {
-        $this->requestProvider->build($request);
+        try {
+            $this->requestProvider->build($request);
 
-        $this->bus->run();
+            $this->bus->run();
 
-        $response = $this->responseTransmitter->getResponse();
+            $response = $this->responseTransmitter->getResponse();
+            $this->terminate();
+            return $response;
+        } catch (Throwable $e) {
+            $this->terminate();
+            throw $e;
+        }
+    }
 
+    private function terminate(): void
+    {
         $this->requestProvider->reset();
         $this->responseTransmitter->reset();
-
-        return $response;
     }
 }
