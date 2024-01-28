@@ -6,6 +6,8 @@ namespace Duyler\Http;
 
 use Duyler\EventBus\BusInterface;
 use Duyler\Framework\Builder;
+use Duyler\Router\RouteCollection;
+use Duyler\Router\Router;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -27,8 +29,10 @@ final class ApplicationRunner
         $this->requestProvider = $this->container->get(RequestProvider::class);
         $this->responseTransmitter = $this->container->get(ResponseTransmitter::class);
 
+
         $builder->addSharedService($this->requestProvider);
         $builder->addSharedService($this->responseTransmitter);
+        $builder->addSharedService($this->container->get(RouteCollection::class));
 
         $builder->loadPackages();
         $builder->loadBuild();
@@ -43,6 +47,11 @@ final class ApplicationRunner
     {
         try {
             $this->requestProvider->build($request);
+
+            $this->container->set($request);
+            $this->container->bind([
+                ServerRequestInterface::class => $request::class,
+            ]);
 
             $this->bus->run();
 
