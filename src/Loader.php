@@ -5,21 +5,17 @@ declare(strict_types=1);
 namespace Duyler\Http;
 
 use Duyler\EventBus\Dto\Action;
+use Duyler\EventBus\Dto\Subscription;
 use Duyler\Framework\Loader\LoaderServiceInterface;
 use Duyler\Framework\Loader\PackageLoaderInterface;
 use Duyler\Http\Action\CreateRequestAction;
 use Duyler\Http\Action\StartRoutingAction;
-use Duyler\Http\Provider\StartRoutingProvider;
-use Duyler\Http\State\PrepareRequestStateHandler;
-use Duyler\Http\State\ShareRequestStateHandler;
+use Duyler\Http\Factory\CreateRequestArgumentFactory;
 use Duyler\Router\CurrentRoute;
-use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
 class Loader implements PackageLoaderInterface
 {
-    public function __construct(private ContainerInterface $container) {}
-
     public function load(LoaderServiceInterface $loaderService): void
     {
         $requestAction = new Action(
@@ -28,27 +24,36 @@ class Loader implements PackageLoaderInterface
             required: [
                 'Http.StartRouting',
             ],
-            argument: CurrentRoute::class,
+            argument: ServerRequestInterface::class,
+            argumentFactory: CreateRequestArgumentFactory::class,
             contract: ServerRequestInterface::class,
             externalAccess: true,
+            //repeatable: true,
         );
 
         $routingAction = new Action(
             id: 'Http.StartRouting',
             handler: StartRoutingAction::class,
-            providers: [
-                StartRoutingAction::class => StartRoutingProvider::class,
-            ],
+            argument: ServerRequestInterface::class,
             contract: CurrentRoute::class,
+            //repeatable: true,
         );
 
         $loaderService->addAction($requestAction);
         $loaderService->addAction($routingAction);
 
-        $prepareRequest = $this->container->get(PrepareRequestStateHandler::class);
-        $shareRequest = $this->container->get(ShareRequestStateHandler::class);
+        $loaderService->addSubscription(
+            new Subscription(
+                subjectId: 'Http.CreateRawRequest',
+                actionId: 'Http.CreateRequest',
+            )
+        );
 
-        $loaderService->addStateHandler($prepareRequest);
-        $loaderService->addStateHandler($shareRequest);
+        $loaderService->addSubscription(
+            new Subscription(
+                subjectId: 'Http.CreateRawRequest',
+                actionId: 'Http.StartRouting',
+            )
+        );
     }
 }

@@ -21,9 +21,11 @@ class ResponseTransmitter
         $this->response = $response;
     }
 
-    public function getResponse(): ResponseInterface
+    public function extract(): ResponseInterface
     {
-        return $this->response ?? new EmptyResponse();
+        $response = $this->response ?? new EmptyResponse();
+        $this->response = null;
+        return $response;
     }
 
     public function isTransmitted(): bool

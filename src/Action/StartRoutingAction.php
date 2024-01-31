@@ -15,14 +15,13 @@ class StartRoutingAction
     public function __construct(
         private Router $router,
         private RouteCollection $routeCollection,
-        private ServerRequestInterface $request,
     ) {}
 
-    public function __invoke()
+    public function __invoke(ServerRequestInterface $request): Result
     {
         $currentRoute = $this->router->startRouting(
             routeCollection: $this->routeCollection,
-            serverRequest: $this->request,
+            serverRequest: $request,
         );
 
         return new Result(
