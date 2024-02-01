@@ -8,29 +8,18 @@ use Duyler\EventBus\BusInterface;
 use Duyler\EventBus\Dto\Trigger;
 use Duyler\EventBus\Enum\ResultStatus;
 use Duyler\Framework\Builder;
-use Duyler\Router\RouteCollection;
-use Psr\Container\ContainerInterface;
+use HttpSoft\Response\EmptyResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Throwable;
 
 final class ApplicationRunner
 {
-    private ResponseTransmitter $responseTransmitter;
     private BusInterface $bus;
-    private ContainerInterface $container;
 
     public function __construct()
     {
         $builder = new Builder();
-
-        $this->container = $builder->getContainer();
-
-        $this->responseTransmitter = $this->container->get(ResponseTransmitter::class);
-
-        $builder->addSharedService($this->responseTransmitter);
-        $builder->addSharedService($this->container->get(RouteCollection::class));
-
         $builder->loadPackages();
         $builder->loadBuild();
 
@@ -52,11 +41,18 @@ final class ApplicationRunner
 
             $this->bus->dispatchTrigger($trigger);
             $this->bus->run();
-            $this->bus->reset();
 
-            return $this->responseTransmitter->extract();
+            if ($this->bus->resultIsExists('Http.PersistResponse')) {
+                /** @var ResponseInterface $response */
+                $response = $this->bus->getResult('Http.PersistResponse')->data;
+                $this->bus->reset();
+                return $response;
+            }
+
+            $this->bus->reset();
+            return new EmptyResponse();
         } catch (Throwable $e) {
-            $this->responseTransmitter->reset();
+            $this->bus->reset();
             throw $e;
         }
     }

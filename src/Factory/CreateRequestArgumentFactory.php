@@ -14,7 +14,7 @@ class CreateRequestArgumentFactory
         private CurrentRoute $currentRoute,
     ) {}
 
-    public function __invoke()
+    public function __invoke(): ServerRequestInterface
     {
         if ($this->currentRoute->status) {
             foreach ($this->currentRoute->attributes as $key => $value) {
