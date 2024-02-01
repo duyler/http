@@ -10,17 +10,19 @@ use Duyler\Router\RouteCollection;
 use Duyler\Router\Router;
 use Psr\Http\Message\ServerRequestInterface;
 
-readonly class StartRoutingAction
+class StartRoutingAction
 {
     public function __construct(
         private Router $router,
         private RouteCollection $routeCollection,
-        private ServerRequestInterface $request,
     ) {}
 
-    public function __invoke(): Result
+    public function __invoke(ServerRequestInterface $request): Result
     {
-        $currentRoute = $this->router->startRouting($this->routeCollection, $this->request);
+        $currentRoute = $this->router->startRouting(
+            routeCollection: $this->routeCollection,
+            serverRequest: $request,
+        );
 
         return new Result(
             status: ResultStatus::Success,

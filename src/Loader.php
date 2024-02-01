@@ -4,35 +4,34 @@ declare(strict_types=1);
 
 namespace Duyler\Http;
 
-use Duyler\Contract\PackageLoader\LoaderServiceInterface;
-use Duyler\Contract\PackageLoader\PackageLoaderInterface;
+use Duyler\DependencyInjection\ContainerInterface;
 use Duyler\EventBus\Dto\Action;
-use Duyler\Http\Action\CreateRequestAction;
+use Duyler\EventBus\Dto\Subscription;
+use Duyler\Framework\Loader\LoaderServiceInterface;
+use Duyler\Framework\Loader\PackageLoaderInterface;
 use Duyler\Http\Action\StartRoutingAction;
-use Duyler\Http\Provider\StartRoutingProvider;
-use Duyler\Http\State\PrepareRequestStateHandler;
+use Duyler\Http\Factory\CreateRequestArgumentFactory;
 use Duyler\Router\CurrentRoute;
 use Duyler\Router\RouteCollection;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
 class Loader implements PackageLoaderInterface
 {
     public function __construct(
-        private RouteCollection $routeCollection,
+        private ContainerInterface $container,
     ) {}
 
     public function load(LoaderServiceInterface $loaderService): void
     {
         $requestAction = new Action(
             id: 'Http.CreateRequest',
-            handler: CreateRequestAction::class,
+            handler: fn(ServerRequestInterface $request) => $request,
             required: [
                 'Http.StartRouting',
             ],
-            providers: [
-                CreateRequestAction::class => StartRoutingProvider::class,
-            ],
-            argument: CurrentRoute::class,
+            argument: ServerRequestInterface::class,
+            argumentFactory: CreateRequestArgumentFactory::class,
             contract: ServerRequestInterface::class,
             externalAccess: true,
         );
@@ -40,19 +39,43 @@ class Loader implements PackageLoaderInterface
         $routingAction = new Action(
             id: 'Http.StartRouting',
             handler: StartRoutingAction::class,
-            providers: [
-                StartRoutingAction::class => StartRoutingProvider::class,
-            ],
+            argument: ServerRequestInterface::class,
             contract: CurrentRoute::class,
+        );
+
+        $responseAction = new Action(
+            id: 'Http.PersistResponse',
+            handler: fn(ResponseInterface $response) => $response,
+            argument: ResponseInterface::class,
+            contract: ResponseInterface::class,
             externalAccess: true,
         );
 
-        $loaderService->getBuilder()->addAction($requestAction);
-        $loaderService->getBuilder()->addAction($routingAction);
+        $loaderService->addAction($requestAction);
+        $loaderService->addAction($routingAction);
+        $loaderService->addAction($responseAction);
 
-        $prepareRequest = $loaderService->getContainer()->get(PrepareRequestStateHandler::class);
+        $loaderService->addSubscription(
+            new Subscription(
+                subjectId: 'Http.CreateRawRequest',
+                actionId: 'Http.CreateRequest',
+            )
+        );
 
-        $loaderService->getBuilder()->addStateHandler($prepareRequest);
-        $loaderService->getBuilder()->addSharedService($this->routeCollection);
+        $loaderService->addSubscription(
+            new Subscription(
+                subjectId: 'Http.CreateRawRequest',
+                actionId: 'Http.StartRouting',
+            )
+        );
+
+        $loaderService->addSubscription(
+            new Subscription(
+                subjectId: 'Http.CreateResponse',
+                actionId: 'Http.PersistResponse',
+            )
+        );
+
+        $loaderService->addSharedService($this->container->get(RouteCollection::class));
     }
 }
