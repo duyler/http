@@ -11,12 +11,11 @@
         }
     ],
     "support": {
-        "docs": "https://duyler.org/docs/event-bus-scenario/"
+        "docs": "https://duyler.org/docs/http/"
     },
     "require": {
         "php": "^8.3",
         "duyler/config": "dev-main",
-        "duyler/contract": "dev-main",
         "duyler/router": "dev-main",
         "httpsoft/http-server-request": "^1.1"
     },
