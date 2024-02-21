@@ -9,19 +9,14 @@ use Psr\Http\Message\ServerRequestInterface;
 
 class CreateRequestArgumentFactory
 {
-    public function __construct(
-        private ServerRequestInterface $request,
-        private CurrentRoute $currentRoute,
-    ) {}
-
-    public function __invoke(): ServerRequestInterface
+    public function __invoke(ServerRequestInterface $request, CurrentRoute $currentRoute): ServerRequestInterface
     {
-        if ($this->currentRoute->status) {
-            foreach ($this->currentRoute->attributes as $key => $value) {
-                $this->request = $this->request->withAttribute($key, $value);
+        if ($currentRoute->status) {
+            foreach ($currentRoute->attributes as $key => $value) {
+                $request = $request->withAttribute($key, $value);
             }
         }
 
-        return $this->request;
+        return $request;
     }
 }
