@@ -6,7 +6,6 @@ namespace Duyler\Http;
 
 use Duyler\DependencyInjection\ContainerInterface;
 use Duyler\EventBus\Dto\Action;
-use Duyler\EventBus\Dto\Subscription;
 use Duyler\Framework\Loader\LoaderServiceInterface;
 use Duyler\Framework\Loader\PackageLoaderInterface;
 use Duyler\Http\Action\StartRoutingAction;
@@ -30,6 +29,7 @@ class Loader implements PackageLoaderInterface
             required: [
                 'Http.StartRouting',
             ],
+            triggeredOn: 'Http.CreateRawRequest',
             argument: ServerRequestInterface::class,
             argumentFactory: CreateRequestArgumentFactory::class,
             contract: ServerRequestInterface::class,
@@ -39,6 +39,7 @@ class Loader implements PackageLoaderInterface
         $routingAction = new Action(
             id: 'Http.StartRouting',
             handler: StartRoutingAction::class,
+            triggeredOn: 'Http.CreateRawRequest',
             argument: ServerRequestInterface::class,
             contract: CurrentRoute::class,
         );
@@ -46,6 +47,7 @@ class Loader implements PackageLoaderInterface
         $responseAction = new Action(
             id: 'Http.PersistResponse',
             handler: fn(ResponseInterface $response) => $response,
+            triggeredOn: 'Http.CreateResponse',
             argument: ResponseInterface::class,
             contract: ResponseInterface::class,
             externalAccess: true,
@@ -54,27 +56,6 @@ class Loader implements PackageLoaderInterface
         $loaderService->addAction($requestAction);
         $loaderService->addAction($routingAction);
         $loaderService->addAction($responseAction);
-
-        $loaderService->addSubscription(
-            new Subscription(
-                subjectId: 'Http.CreateRawRequest',
-                actionId: 'Http.CreateRequest',
-            )
-        );
-
-        $loaderService->addSubscription(
-            new Subscription(
-                subjectId: 'Http.CreateRawRequest',
-                actionId: 'Http.StartRouting',
-            )
-        );
-
-        $loaderService->addSubscription(
-            new Subscription(
-                subjectId: 'Http.CreateResponse',
-                actionId: 'Http.PersistResponse',
-            )
-        );
 
         $loaderService->addSharedService($this->container->get(RouteCollection::class));
     }
