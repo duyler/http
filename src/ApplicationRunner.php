@@ -6,7 +6,6 @@ namespace Duyler\Http;
 
 use Duyler\EventBus\BusInterface;
 use Duyler\EventBus\Dto\Trigger;
-use Duyler\EventBus\Enum\ResultStatus;
 use Duyler\Framework\Builder;
 use HttpSoft\Response\EmptyResponse;
 use Psr\Http\Message\ResponseInterface;
@@ -34,7 +33,6 @@ final class ApplicationRunner
         try {
             $trigger = new Trigger(
                 id: 'Http.CreateRawRequest',
-                status: ResultStatus::Success,
                 data: $request,
                 contract: ServerRequestInterface::class,
             );
