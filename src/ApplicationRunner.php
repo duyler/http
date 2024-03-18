@@ -7,7 +7,8 @@ namespace Duyler\Http;
 use Duyler\EventBus\BusInterface;
 use Duyler\EventBus\Dto\Trigger;
 use Duyler\Framework\Builder;
-use HttpSoft\Response\EmptyResponse;
+use Duyler\Http\ErrorHandler\ErrorHandler;
+use Duyler\Http\Exception\NotImplementedHttpException;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Throwable;
@@ -15,6 +16,7 @@ use Throwable;
 final class ApplicationRunner
 {
     private BusInterface $bus;
+    private ErrorHandler $errorHandler;
 
     public function __construct()
     {
@@ -22,12 +24,12 @@ final class ApplicationRunner
         $builder->loadPackages();
         $builder->loadBuild();
 
+        $container = $builder->getContainer();
+        $this->errorHandler = $container->get(ErrorHandler::class);
+
         $this->bus = $builder->build();
     }
 
-    /**
-     * @throws Throwable
-     */
     public function run(ServerRequestInterface $request): ResponseInterface
     {
         try {
@@ -40,18 +42,17 @@ final class ApplicationRunner
             $this->bus->dispatchTrigger($trigger);
             $this->bus->run();
 
-            if ($this->bus->resultIsExists('Http.PersistResponse')) {
-                /** @var ResponseInterface $response */
-                $response = $this->bus->getResult('Http.PersistResponse')->data;
-                $this->bus->reset();
-                return $response;
+            if (false === $this->bus->resultIsExists('Http.PersistResponse')) {
+                throw new NotImplementedHttpException();
             }
 
+            /** @var ResponseInterface $response */
+            $response = $this->bus->getResult('Http.PersistResponse')->data;
             $this->bus->reset();
-            return new EmptyResponse();
+            return $response;
         } catch (Throwable $e) {
             $this->bus->reset();
-            throw $e;
+            return $this->errorHandler->handle($e);
         }
     }
 }
