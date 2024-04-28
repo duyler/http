@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Duyler\Http;
 
-use Duyler\EventBus\BusInterface;
-use Duyler\EventBus\Dto\Trigger;
+use Duyler\ActionBus\BusInterface;
+use Duyler\ActionBus\Dto\Trigger;
 use Duyler\Framework\Builder;
 use Duyler\Http\ErrorHandler\ErrorHandler;
 use Duyler\Http\Exception\NotImplementedHttpException;

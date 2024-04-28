@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Duyler\Http;
 
 use Duyler\DependencyInjection\ContainerInterface;
-use Duyler\EventBus\Dto\Action;
+use Duyler\ActionBus\Dto\Action;
 use Duyler\Framework\Loader\LoaderServiceInterface;
 use Duyler\Framework\Loader\PackageLoaderInterface;
 use Duyler\Http\Action\StartRoutingAction;

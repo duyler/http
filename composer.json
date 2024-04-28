@@ -17,6 +17,8 @@
         "php": "^8.3",
         "duyler/config": "dev-main",
         "duyler/router": "dev-main",
+        "duyler/action-bus": "dev-main",
+        "duyler/framework": "dev-main",
         "httpsoft/http-server-request": "^1.1",
         "httpsoft/http-response": "^1.1"
     },
