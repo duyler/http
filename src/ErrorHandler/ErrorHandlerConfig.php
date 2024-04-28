@@ -8,6 +8,6 @@ readonly class ErrorHandlerConfig
 {
     public function __construct(
         /** @var string[] */
-        public array $errorHandlers = []
+        public array $errorHandlers = [],
     ) {}
 }

@@ -10,7 +10,7 @@ class ErrorHandlerProvider
 {
     public function __construct(
         private ContainerInterface $container,
-        private ErrorHandlerConfig $errorHandlerConfig
+        private ErrorHandlerConfig $errorHandlerConfig,
     ) {}
 
     /** @return ErrorHandlerInterface[]  */
