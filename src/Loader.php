@@ -24,10 +24,10 @@ class Loader implements PackageLoaderInterface
     public function load(LoaderServiceInterface $loaderService): void
     {
         $requestAction = new Action(
-            id: 'Http.CreateRequest',
+            id: Http::GetRequest,
             handler: fn(ServerRequestInterface $request) => $request,
             required: [
-                'Http.StartRouting',
+                Http::GetRoute,
             ],
             triggeredOn: 'Http.CreateRawRequest',
             argument: ServerRequestInterface::class,
@@ -37,7 +37,7 @@ class Loader implements PackageLoaderInterface
         );
 
         $routingAction = new Action(
-            id: 'Http.StartRouting',
+            id: Http::GetRoute,
             handler: StartRoutingAction::class,
             triggeredOn: 'Http.CreateRawRequest',
             argument: ServerRequestInterface::class,
@@ -47,7 +47,7 @@ class Loader implements PackageLoaderInterface
         $responseAction = new Action(
             id: 'Http.PersistResponse',
             handler: fn(ResponseInterface $response) => $response,
-            triggeredOn: 'Http.CreateResponse',
+            triggeredOn: Http::CreateResponse,
             argument: ResponseInterface::class,
             contract: ResponseInterface::class,
             externalAccess: true,
