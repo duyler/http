@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Duyler\Http;
 
 use Duyler\ActionBus\BusInterface;
-use Duyler\ActionBus\Dto\Trigger;
+use Duyler\ActionBus\Dto\Event;
 use Duyler\Framework\Builder;
 use Duyler\Http\ErrorHandler\ErrorHandler;
 use Duyler\Http\Exception\NotImplementedHttpException;
@@ -33,13 +33,12 @@ final class ApplicationRunner
     public function run(ServerRequestInterface $request): ResponseInterface
     {
         try {
-            $trigger = new Trigger(
+            $event = new Event(
                 id: 'Http.CreateRawRequest',
                 data: $request,
-                contract: ServerRequestInterface::class,
             );
 
-            $this->bus->dispatchTrigger($trigger);
+            $this->bus->dispatchEvent($event);
             $this->bus->run();
 
             if (false === $this->bus->resultIsExists('Http.PersistResponse')) {
