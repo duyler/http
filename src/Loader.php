@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace Duyler\Http;
 
+use Duyler\ActionBus\Build\Action;
+use Duyler\ActionBus\Build\Event;
 use Duyler\DependencyInjection\ContainerInterface;
-use Duyler\ActionBus\Dto\Action;
 use Duyler\Framework\Loader\LoaderServiceInterface;
 use Duyler\Framework\Loader\PackageLoaderInterface;
 use Duyler\Http\Action\StartRoutingAction;
@@ -29,7 +30,7 @@ class Loader implements PackageLoaderInterface
             required: [
                 Http::GetRoute,
             ],
-            triggeredOn: 'Http.CreateRawRequest',
+            listen: 'Http.CreateRawRequest',
             argument: ServerRequestInterface::class,
             argumentFactory: CreateRequestArgumentFactory::class,
             contract: ServerRequestInterface::class,
@@ -39,7 +40,7 @@ class Loader implements PackageLoaderInterface
         $routingAction = new Action(
             id: Http::GetRoute,
             handler: StartRoutingAction::class,
-            triggeredOn: 'Http.CreateRawRequest',
+            listen: 'Http.CreateRawRequest',
             argument: ServerRequestInterface::class,
             contract: CurrentRoute::class,
         );
@@ -47,7 +48,7 @@ class Loader implements PackageLoaderInterface
         $responseAction = new Action(
             id: 'Http.PersistResponse',
             handler: fn(ResponseInterface $response) => $response,
-            triggeredOn: Http::CreateResponse,
+            listen: Http::CreateResponse,
             argument: ResponseInterface::class,
             contract: ResponseInterface::class,
             externalAccess: true,
@@ -58,5 +59,15 @@ class Loader implements PackageLoaderInterface
         $loaderService->addAction($responseAction);
 
         $loaderService->addSharedService($this->container->get(RouteCollection::class));
+
+        $loaderService->addEvent(new Event(
+            id: 'Http.CreateRawRequest',
+            contract: ServerRequestInterface::class,
+        ));
+
+        $loaderService->addEvent(new Event(
+            id: Http::CreateResponse,
+            contract: ResponseInterface::class,
+        ));
     }
 }
