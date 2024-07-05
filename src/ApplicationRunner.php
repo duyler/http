@@ -6,6 +6,7 @@ namespace Duyler\Http;
 
 use Duyler\ActionBus\BusInterface;
 use Duyler\ActionBus\Dto\Event;
+use Duyler\DependencyInjection\ContainerInterface;
 use Duyler\Framework\Builder;
 use Duyler\Http\ErrorHandler\ErrorHandler;
 use Duyler\Http\Exception\NotImplementedHttpException;
@@ -17,6 +18,7 @@ final class ApplicationRunner
 {
     private BusInterface $bus;
     private ErrorHandler $errorHandler;
+    private ContainerInterface $container;
 
     public function __construct()
     {
@@ -24,9 +26,8 @@ final class ApplicationRunner
         $builder->loadPackages();
         $builder->loadBuild();
 
-        $container = $builder->getContainer();
-        $this->errorHandler = $container->get(ErrorHandler::class);
-
+        $this->container = $builder->getContainer();
+        $this->errorHandler = $this->container->get(ErrorHandler::class);
         $this->bus = $builder->build();
     }
 
@@ -48,9 +49,11 @@ final class ApplicationRunner
             /** @var ResponseInterface $response */
             $response = $this->bus->getResult('Http.PersistResponse')->data;
             $this->bus->reset();
+            $this->container->finalize();
             return $response;
         } catch (Throwable $e) {
             $this->bus->reset();
+            $this->container->finalize();
             return $this->errorHandler->handle($e);
         }
     }
