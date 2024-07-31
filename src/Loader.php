@@ -6,6 +6,7 @@ namespace Duyler\Http;
 
 use Duyler\ActionBus\Build\Action;
 use Duyler\ActionBus\Build\Event;
+use Duyler\ActionBus\Build\SharedService;
 use Duyler\DependencyInjection\ContainerInterface;
 use Duyler\Framework\Loader\LoaderServiceInterface;
 use Duyler\Framework\Loader\PackageLoaderInterface;
@@ -58,7 +59,12 @@ class Loader implements PackageLoaderInterface
         $loaderService->addAction($routingAction);
         $loaderService->addAction($responseAction);
 
-        $loaderService->addSharedService($this->container->get(RouteCollection::class));
+        $loaderService->addSharedService(
+            new SharedService(
+                class: RouteCollection::class,
+                service: $this->container->get(RouteCollection::class),
+            ),
+        );
 
         $loaderService->addEvent(new Event(
             id: 'Http.CreateRawRequest',
