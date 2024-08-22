@@ -7,7 +7,7 @@ namespace Duyler\Http;
 use Duyler\ActionBus\BusInterface;
 use Duyler\ActionBus\Dto\Event;
 use Duyler\DependencyInjection\ContainerInterface;
-use Duyler\Framework\Builder;
+use Duyler\Builder\Builder;
 use Duyler\Http\ErrorHandler\ErrorHandler;
 use Duyler\Http\Exception\NotImplementedHttpException;
 use Psr\Http\Message\ResponseInterface;
