@@ -11,13 +11,13 @@
         }
     ],
     "support": {
-        "docs": "https://duyler.org/docs/http/"
+        "docs": "https://duyler.org/en/docs/http/"
     },
     "require": {
         "php": "^8.3",
         "duyler/config": "dev-main",
         "duyler/router": "dev-main",
-        "duyler/action-bus": "dev-main",
+        "duyler/event-bus": "dev-main",
         "duyler/builder": "dev-main",
         "httpsoft/http-server-request": "^1.1",
         "httpsoft/http-response": "^1.1"
