@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Duyler\Http;
 
-use Duyler\ActionBus\BusInterface;
-use Duyler\ActionBus\Dto\Event;
+use Duyler\EventBus\BusInterface;
+use Duyler\EventBus\Dto\Event;
 use Duyler\DependencyInjection\ContainerInterface;
 use Duyler\Builder\Builder;
 use Duyler\Http\ErrorHandler\ErrorHandler;

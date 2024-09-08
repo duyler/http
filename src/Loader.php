@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Duyler\Http;
 
-use Duyler\ActionBus\Build\Action;
-use Duyler\ActionBus\Build\Event;
-use Duyler\ActionBus\Build\SharedService;
+use Duyler\EventBus\Build\Action;
+use Duyler\EventBus\Build\Event;
+use Duyler\EventBus\Build\SharedService;
 use Duyler\DependencyInjection\ContainerInterface;
 use Duyler\Builder\Loader\LoaderServiceInterface;
 use Duyler\Builder\Loader\PackageLoaderInterface;
