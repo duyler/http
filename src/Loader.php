@@ -31,7 +31,7 @@ class Loader implements PackageLoaderInterface
             required: [
                 Http::GetRoute,
             ],
-            listen: 'Http.CreateRawRequest',
+            listen: ['Http.CreateRawRequest'],
             argument: ServerRequestInterface::class,
             argumentFactory: CreateRequestArgumentFactory::class,
             contract: ServerRequestInterface::class,
@@ -41,7 +41,7 @@ class Loader implements PackageLoaderInterface
         $routingAction = new Action(
             id: Http::GetRoute,
             handler: StartRoutingAction::class,
-            listen: 'Http.CreateRawRequest',
+            listen: ['Http.CreateRawRequest'],
             argument: ServerRequestInterface::class,
             contract: CurrentRoute::class,
         );
@@ -49,7 +49,7 @@ class Loader implements PackageLoaderInterface
         $responseAction = new Action(
             id: 'Http.PersistResponse',
             handler: fn(ResponseInterface $response) => $response,
-            listen: Http::CreateResponse,
+            listen: [Http::CreateResponse],
             argument: ResponseInterface::class,
             contract: ResponseInterface::class,
             externalAccess: true,
