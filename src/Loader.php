@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Duyler\Http;
 
+use Duyler\EventBus\Action\Context\ActionContext;
 use Duyler\EventBus\Build\Action;
 use Duyler\EventBus\Build\Event;
 use Duyler\EventBus\Build\SharedService;
@@ -27,7 +28,7 @@ class Loader implements PackageLoaderInterface
     {
         $requestAction = new Action(
             id: Http::GetRequest,
-            handler: fn(ServerRequestInterface $request) => $request,
+            handler: fn(ActionContext $context) => $context->argument(),
             required: [
                 Http::GetRoute,
             ],
@@ -48,7 +49,7 @@ class Loader implements PackageLoaderInterface
 
         $responseAction = new Action(
             id: 'Http.PersistResponse',
-            handler: fn(ResponseInterface $response) => $response,
+            handler: fn(ActionContext $context) => $context->argument(),
             listen: [Http::CreateResponse],
             argument: ResponseInterface::class,
             contract: ResponseInterface::class,
