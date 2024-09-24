@@ -4,17 +4,22 @@ declare(strict_types=1);
 
 namespace Duyler\Http;
 
+use Duyler\Builder\Loader\LoaderServiceInterface;
+use Duyler\Builder\Loader\PackageLoaderInterface;
+use Duyler\DependencyInjection\ContainerInterface;
 use Duyler\EventBus\Action\Context\ActionContext;
 use Duyler\EventBus\Build\Action;
 use Duyler\EventBus\Build\Event;
 use Duyler\EventBus\Build\SharedService;
-use Duyler\DependencyInjection\ContainerInterface;
-use Duyler\Builder\Loader\LoaderServiceInterface;
-use Duyler\Builder\Loader\PackageLoaderInterface;
-use Duyler\Http\Action\StartRoutingAction;
+use Duyler\EventBus\Dto\Result;
+use Duyler\EventBus\Enum\ResultStatus;
+use Duyler\Http\Action\Request;
+use Duyler\Http\Action\Route;
+use Duyler\Http\Event\Response;
 use Duyler\Http\Factory\CreateRequestArgumentFactory;
 use Duyler\Router\CurrentRoute;
 use Duyler\Router\RouteCollection;
+use Duyler\Router\Router;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -27,10 +32,10 @@ class Loader implements PackageLoaderInterface
     public function load(LoaderServiceInterface $loaderService): void
     {
         $requestAction = new Action(
-            id: Http::GetRequest,
+            id: Request::GetRequest,
             handler: fn(ActionContext $context) => $context->argument(),
             required: [
-                Http::GetRoute,
+                Route::GetRoute,
             ],
             listen: ['Http.CreateRawRequest'],
             argument: ServerRequestInterface::class,
@@ -40,8 +45,24 @@ class Loader implements PackageLoaderInterface
         );
 
         $routingAction = new Action(
-            id: Http::GetRoute,
-            handler: StartRoutingAction::class,
+            id: Route::GetRoute,
+            handler: function (ActionContext $context) {
+                /** @var ServerRequestInterface $request */
+                $request = $context->argument();
+                return $context->call(
+                    function (Router $router, RouteCollection $routeCollection) use ($request) {
+                        $currentRoute = $router->startRouting(
+                            routeCollection: $routeCollection,
+                            serverRequest: $request,
+                        );
+
+                        return new Result(
+                            status: ResultStatus::Success,
+                            data: $currentRoute,
+                        );
+                    },
+                );
+            },
             listen: ['Http.CreateRawRequest'],
             argument: ServerRequestInterface::class,
             contract: CurrentRoute::class,
@@ -50,7 +71,7 @@ class Loader implements PackageLoaderInterface
         $responseAction = new Action(
             id: 'Http.PersistResponse',
             handler: fn(ActionContext $context) => $context->argument(),
-            listen: [Http::CreateResponse],
+            listen: [Response::ResponseCreated],
             argument: ResponseInterface::class,
             contract: ResponseInterface::class,
             externalAccess: true,
@@ -73,7 +94,7 @@ class Loader implements PackageLoaderInterface
         ));
 
         $loaderService->addEvent(new Event(
-            id: Http::CreateResponse,
+            id: Response::ResponseCreated,
             contract: ResponseInterface::class,
         ));
     }
