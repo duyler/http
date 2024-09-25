@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Duyler\Http\Runtime;
 
 use Duyler\Builder\Builder;
-use Duyler\DependencyInjection\ContainerInterface;
+use Duyler\DI\ContainerInterface;
 use Duyler\EventBus\BusInterface;
 use Duyler\EventBus\Dto\Event;
 use Duyler\Http\ErrorHandler\ErrorHandler;
