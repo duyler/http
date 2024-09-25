@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Duyler\Http\ErrorHandler;
 
-use Duyler\DependencyInjection\ContainerInterface;
+use Duyler\DI\ContainerInterface;
 
 class ErrorHandlerProvider
 {
