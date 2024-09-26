@@ -14,7 +14,7 @@ use Duyler\EventBus\Build\SharedService;
 use Duyler\EventBus\Dto\Result;
 use Duyler\EventBus\Enum\ResultStatus;
 use Duyler\Http\Action\Request;
-use Duyler\Http\Action\Route;
+use Duyler\Http\Action\Router;
 use Duyler\Http\Event\Response;
 use Duyler\Http\Factory\CreateRequestArgumentFactory;
 use Duyler\Router\CurrentRoute;
@@ -35,7 +35,7 @@ class Loader implements PackageLoaderInterface
             id: Request::GetRequest,
             handler: fn(ActionContext $context) => $context->argument(),
             required: [
-                Route::GetRoute,
+                Router::GetRoute,
             ],
             listen: ['Http.CreateRawRequest'],
             argument: ServerRequestInterface::class,
@@ -45,7 +45,7 @@ class Loader implements PackageLoaderInterface
         );
 
         $routingAction = new Action(
-            id: Route::GetRoute,
+            id: Router::GetRoute,
             handler: function (ActionContext $context) {
                 /** @var ServerRequestInterface $request */
                 $request = $context->argument();

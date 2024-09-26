@@ -2,7 +2,7 @@
 
 namespace Duyler\Http\Action;
 
-enum Route
+enum Router
 {
     case GetRoute;
 }
