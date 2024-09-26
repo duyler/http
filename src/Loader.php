@@ -19,7 +19,7 @@ use Duyler\Http\Event\Response;
 use Duyler\Http\Factory\CreateRequestArgumentFactory;
 use Duyler\Router\CurrentRoute;
 use Duyler\Router\RouteCollection;
-use Duyler\Router\Router;
+use Duyler\Router\Router as HttpRouter;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -50,7 +50,7 @@ class Loader implements PackageLoaderInterface
                 /** @var ServerRequestInterface $request */
                 $request = $context->argument();
                 return $context->call(
-                    function (Router $router, RouteCollection $routeCollection) use ($request) {
+                    function (HttpRouter $router, RouteCollection $routeCollection) use ($request) {
                         $currentRoute = $router->startRouting(
                             routeCollection: $routeCollection,
                             serverRequest: $request,
