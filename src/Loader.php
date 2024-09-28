@@ -12,7 +12,6 @@ use Duyler\EventBus\Build\Action;
 use Duyler\EventBus\Build\Event;
 use Duyler\EventBus\Build\SharedService;
 use Duyler\EventBus\Dto\Result;
-use Duyler\EventBus\Enum\ResultStatus;
 use Duyler\Http\Action\Request;
 use Duyler\Http\Action\Router;
 use Duyler\Http\Event\Response;
@@ -56,10 +55,7 @@ class Loader implements PackageLoaderInterface
                             serverRequest: $request,
                         );
 
-                        return new Result(
-                            status: ResultStatus::Success,
-                            data: $currentRoute,
-                        );
+                        return Result::success($currentRoute);
                     },
                 );
             },
