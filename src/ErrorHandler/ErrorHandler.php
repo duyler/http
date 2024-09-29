@@ -25,7 +25,7 @@ class ErrorHandler
 
     public function handle(Throwable $t): ResponseInterface
     {
-        foreach ($this->errorHandlerProvider->getProviders() as $errorHandler) {
+        foreach ($this->errorHandlerProvider->getHandlers() as $errorHandler) {
             if ($errorHandler->is($t)) {
                 $error = $errorHandler->handle($t);
                 return new HtmlResponse($error->content, $error->status, $error->headers);
