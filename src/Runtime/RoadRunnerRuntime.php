@@ -45,8 +45,14 @@ final class RoadRunnerRuntime implements RuntimeInterface
 
     public function run(): void
     {
-        while ($request = $this->worker->waitRequest()) {
+        while (true) {
             try {
+                $request = $this->worker->waitRequest();
+
+                if (null === $request) {
+                    break;
+                }
+
                 $event = new Event(
                     id: 'Http.CreateRawRequest',
                     data: $request,
@@ -59,14 +65,19 @@ final class RoadRunnerRuntime implements RuntimeInterface
                     throw new NotImplementedHttpException();
                 }
 
-                $this->bus->reset();
-                $this->container->finalize();
-
             } catch (Throwable $e) {
-                $this->bus->reset();
-                $this->container->finalize();
                 $this->worker->respond($this->errorHandler->handle($e));
+            } finally {
+                $this->finalize();
             }
         }
+    }
+
+    private function finalize(): void
+    {
+        $this->bus->reset();
+        $this->container->finalize();
+
+        gc_collect_cycles();
     }
 }
