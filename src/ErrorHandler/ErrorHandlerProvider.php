@@ -14,14 +14,14 @@ class ErrorHandlerProvider
     ) {}
 
     /** @return ErrorHandlerInterface[]  */
-    public function getProviders(): array
+    public function getHandlers(): array
     {
-        $providers = [];
+        $handlers = [];
 
         foreach ($this->errorHandlerConfig->errorHandlers as $errorHandler) {
-            $providers[] = $this->container->get($errorHandler);
+            $handlers[] = $this->container->get($errorHandler);
         }
 
-        return $providers;
+        return $handlers;
     }
 }
