@@ -66,7 +66,6 @@ final class RoadRunnerRuntime implements RuntimeInterface
                 $this->bus->reset();
                 $this->container->finalize();
                 $this->worker->respond($this->errorHandler->handle($e));
-                $this->worker->getWorker()->error((string) $e);
             }
         }
     }
