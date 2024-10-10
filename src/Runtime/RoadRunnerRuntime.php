@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Duyler\Http\Runtime;
 
-use Duyler\Builder\Builder;
+use Duyler\Builder\ApplicationBuilder;
 use Duyler\DI\ContainerInterface;
 use Duyler\EventBus\BusInterface;
 use Duyler\EventBus\Dto\Event;
@@ -33,14 +33,15 @@ final class RoadRunnerRuntime implements RuntimeInterface
 
         $responseStateHandler = new HandleResponseStateHandler($this->worker);
 
-        $builder = new Builder();
-        $builder->addStateHandler($responseStateHandler);
-        $builder->loadPackages();
-        $builder->loadBuild();
+        $builder = new ApplicationBuilder();
+        $this->bus = $builder->getBusBuilder()
+            ->addStateHandler($responseStateHandler)
+            ->loadPackages()
+            ->loadBuild()
+            ->build();
 
         $this->container = $builder->getContainer();
         $this->errorHandler = $this->container->get(ErrorHandler::class);
-        $this->bus = $builder->build();
     }
 
     public function run(): void
