@@ -93,5 +93,10 @@ class Loader implements PackageLoaderInterface
             id: Response::ResponseCreated,
             contract: ResponseInterface::class,
         ));
+
+        $loaderService->addEvent(new Event(
+            id: Response::ResponseHasBeenSent,
+            contract: ResponseInterface::class,
+        ));
     }
 }

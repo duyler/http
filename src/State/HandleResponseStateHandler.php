@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace Duyler\Http\State;
 
 use Duyler\EventBus\Contract\State\MainAfterStateHandlerInterface;
+use Duyler\EventBus\Dto\Event;
 use Duyler\EventBus\State\Service\StateMainAfterService;
 use Duyler\EventBus\State\StateContext;
+use Duyler\Http\Event\Response;
 use Psr\Http\Message\ResponseInterface;
 use Spiral\RoadRunner\Http\PSR7Worker;
 
@@ -23,6 +25,15 @@ class HandleResponseStateHandler implements MainAfterStateHandlerInterface
         /** @var ResponseInterface $response */
         $response = $result->data;
         $this->worker->respond($response);
+
+        $stateService->flushSuccessLog();
+
+        $stateService->dispatchEvent(
+            new Event(
+                Response::ResponseHasBeenSent,
+                $response,
+            ),
+        );
     }
 
     public function observed(StateContext $context): array
