@@ -9,6 +9,7 @@ use Duyler\EventBus\Dto\Event;
 use Duyler\EventBus\State\Service\StateMainAfterService;
 use Duyler\EventBus\State\StateContext;
 use Duyler\Http\Event\Response;
+use Duyler\Http\RuntimeConfig;
 use Psr\Http\Message\ResponseInterface;
 use Spiral\RoadRunner\Http\PSR7Worker;
 
@@ -16,6 +17,7 @@ class HandleResponseStateHandler implements MainAfterStateHandlerInterface
 {
     public function __construct(
         private PSR7Worker $worker,
+        private RuntimeConfig $config,
     ) {}
 
     public function handle(StateMainAfterService $stateService, StateContext $context): void
@@ -26,7 +28,9 @@ class HandleResponseStateHandler implements MainAfterStateHandlerInterface
         $response = $result->data;
         $this->worker->respond($response);
 
-        $stateService->flushSuccessLog();
+        if ($this->config->flushAfterResponseSent) {
+            $stateService->flushSuccessLog();
+        }
 
         $stateService->dispatchEvent(
             new Event(

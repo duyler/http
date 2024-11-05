@@ -9,8 +9,9 @@ use Duyler\DI\ContainerInterface;
 use Duyler\EventBus\BusInterface;
 use Duyler\EventBus\Dto\Event;
 use Duyler\Http\ErrorHandler\ErrorHandler;
-use Duyler\Http\Exception\NotImplementedHttpException;
+use Duyler\Http\RuntimeConfig;
 use Duyler\Http\RuntimeInterface;
+use Duyler\Http\State\HandleEndStateHandler;
 use Duyler\Http\State\HandleResponseStateHandler;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use Spiral\RoadRunner\Http\PSR7Worker;
@@ -31,16 +32,23 @@ final class RoadRunnerRuntime implements RuntimeInterface
 
         $this->worker = new PSR7Worker($worker, $factory, $factory, $factory);
 
-        $responseStateHandler = new HandleResponseStateHandler($this->worker);
-
         $builder = new ApplicationBuilder();
+
+        $this->container = $builder->getContainer();
+
+        /** @var RuntimeConfig $config */
+        $config = $this->container->get(RuntimeConfig::class);
+
+        $responseStateHandler = new HandleResponseStateHandler($this->worker, $config);
+        $endStateHandler = new HandleEndStateHandler();
+
         $this->bus = $builder->getBusBuilder()
             ->addStateHandler($responseStateHandler)
+            ->addStateHandler($endStateHandler)
             ->loadPackages()
             ->loadBuild()
             ->build();
 
-        $this->container = $builder->getContainer();
         $this->errorHandler = $this->container->get(ErrorHandler::class);
     }
 
@@ -61,10 +69,6 @@ final class RoadRunnerRuntime implements RuntimeInterface
 
                 $this->bus->dispatchEvent($event);
                 $this->bus->run();
-
-                if (false === $this->bus->resultIsExists('Http.PersistResponse')) {
-                    throw new NotImplementedHttpException();
-                }
 
             } catch (Throwable $e) {
                 $this->worker->respond($this->errorHandler->handle($e));
