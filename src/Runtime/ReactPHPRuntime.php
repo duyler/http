@@ -57,7 +57,7 @@ final class ReactPHPRuntime implements RuntimeInterface
 
                 return $response;
             } catch (Throwable $e) {
-                return $this->errorHandler->handle($e);
+                return $this->errorHandler->handle($e, $this->bus->getLog());
             } finally {
                 $this->finalize();
             }

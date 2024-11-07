@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Duyler\Http\ErrorHandler;
 
+use Duyler\Config\ConfigInterface;
+use Duyler\EventBus\Dto\Log;
 use Duyler\Http\Exception\BadRequestHttpException;
 use Duyler\Http\Exception\ForbiddenHttpException;
 use Duyler\Http\Exception\HttpException;
@@ -14,44 +16,65 @@ use Duyler\Http\Exception\NotImplementedHttpException;
 use Duyler\Http\Exception\UnauthorizedHttpException;
 use Duyler\Http\Response\ResponseStatus;
 use HttpSoft\Response\HtmlResponse;
+use HttpSoft\Response\TextResponse;
 use Psr\Http\Message\ResponseInterface;
 use Throwable;
 
-class ErrorHandler
+final class ErrorHandler
 {
     public function __construct(
         private ErrorHandlerProvider $errorHandlerProvider,
+        private ErrorRenderer $renderer,
+        private ConfigInterface $config,
     ) {}
 
-    public function handle(Throwable $t): ResponseInterface
+    public function handle(Throwable $t, Log $log): ResponseInterface
     {
-        foreach ($this->errorHandlerProvider->getHandlers() as $errorHandler) {
-            if ($errorHandler->is($t)) {
-                $error = $errorHandler->handle($t);
-                return new HtmlResponse($error->content, $error->status, $error->headers);
-            }
-        }
-
-        $message = $t->getMessage() . PHP_EOL . $t->getTraceAsString();
-
         return match (true) {
             $t instanceof BadRequestHttpException
-                => new HtmlResponse($message, ResponseStatus::STATUS_BAD_REQUEST),
+                => $this->createResponse($t, ResponseStatus::STATUS_BAD_REQUEST, $log),
             $t instanceof ForbiddenHttpException
-                => new HtmlResponse($message, ResponseStatus::STATUS_FORBIDDEN),
+                => $this->createResponse($t, ResponseStatus::STATUS_FORBIDDEN, $log),
             $t instanceof MethodNotAllowedHttpException
-                => new HtmlResponse($message, ResponseStatus::STATUS_METHOD_NOT_ALLOWED),
+                => $this->createResponse($t, ResponseStatus::STATUS_METHOD_NOT_ALLOWED, $log),
             $t instanceof NotImplementedHttpException
-                => new HtmlResponse($message, ResponseStatus::STATUS_NOT_IMPLEMENTED),
+                => $this->createResponse($t, ResponseStatus::STATUS_NOT_IMPLEMENTED, $log),
             $t instanceof NotFoundHttpException
-                => new HtmlResponse($message, ResponseStatus::STATUS_NOT_FOUND),
+                => $this->createResponse($t, ResponseStatus::STATUS_NOT_FOUND, $log),
             $t instanceof UnauthorizedHttpException
-                => new HtmlResponse($message, ResponseStatus::STATUS_UNAUTHORIZED),
+                => $this->createResponse($t, ResponseStatus::STATUS_UNAUTHORIZED, $log),
             $t instanceof InternalServerErrorHttpException
-                => new HtmlResponse($message, ResponseStatus::STATUS_INTERNAL_SERVER_ERROR),
+                => $this->createResponse($t, ResponseStatus::STATUS_INTERNAL_SERVER_ERROR, $log),
             $t instanceof HttpException
-                => new HtmlResponse($message, $t->statusCode),
-            default => new HtmlResponse($message, ResponseStatus::STATUS_INTERNAL_SERVER_ERROR),
+                => $this->createResponse($t, $t->statusCode, $log),
+            default => $this->createResponse($t, ResponseStatus::STATUS_INTERNAL_SERVER_ERROR, $log),
         };
+    }
+
+    private function createResponse(Throwable $t, int $status, Log $log): ResponseInterface
+    {
+        if ('PROD' === strtoupper($this->config->env('ENV'))) {
+            foreach ($this->errorHandlerProvider->getHandlers() as $errorHandler) {
+                if ($errorHandler->is($t)) {
+                    return $errorHandler->handle($t, $log);
+                }
+            }
+            return new TextResponse($status . ' ' . ResponseStatus::ERROR_PHRASES[$status] ?? '', $status);
+        }
+
+        $data = [];
+        $data['actionLog'] = $log->actionLog;
+        $data['successLog'] = $log->successLog;
+        $data['failLog'] = $log->failLog;
+        $data['retriesLog'] = $log->retriesLog;
+        $data['suspendedLog'] = $log->suspendedLog;
+        $data['beginAction'] = $log->beginAction;
+        $data['errorAction'] = $log->errorAction;
+        $data['message'] = $t->getMessage();
+        $data['status'] = $status;
+        $data['trace'] = $t->getTraceAsString();
+
+        $message = $this->renderer->render('error', $data);
+        return new HtmlResponse($message, $status);
     }
 }
