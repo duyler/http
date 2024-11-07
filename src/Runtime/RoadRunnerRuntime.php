@@ -71,7 +71,7 @@ final class RoadRunnerRuntime implements RuntimeInterface
                 $this->bus->run();
 
             } catch (Throwable $e) {
-                $this->worker->respond($this->errorHandler->handle($e));
+                $this->worker->respond($this->errorHandler->handle($e, $this->bus->getLog()));
             } finally {
                 $this->finalize();
             }
