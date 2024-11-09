@@ -11,7 +11,6 @@ use Duyler\EventBus\Dto\Event;
 use Duyler\Http\ErrorHandler\ErrorHandler;
 use Duyler\Http\RuntimeConfig;
 use Duyler\Http\RuntimeInterface;
-use Duyler\Http\State\HandleEndStateHandler;
 use Duyler\Http\State\HandleResponseStateHandler;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use Spiral\RoadRunner\Http\PSR7Worker;
@@ -40,11 +39,9 @@ final class RoadRunnerRuntime implements RuntimeInterface
         $config = $this->container->get(RuntimeConfig::class);
 
         $responseStateHandler = new HandleResponseStateHandler($this->worker, $config);
-        $endStateHandler = new HandleEndStateHandler();
 
         $this->bus = $builder->getBusBuilder()
             ->addStateHandler($responseStateHandler)
-            ->addStateHandler($endStateHandler)
             ->loadPackages()
             ->loadBuild()
             ->build();

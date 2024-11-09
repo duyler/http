@@ -63,7 +63,7 @@ final class ErrorHandler
         }
 
         $data = [];
-        $data['actionLog'] = $log->actionLog;
+        $data['actionLog'] = $log->mainEventLog;
         $data['successLog'] = $log->successLog;
         $data['failLog'] = $log->failLog;
         $data['retriesLog'] = $log->retriesLog;

@@ -19,14 +19,23 @@
                 <h1>{{ status }} {{ message }}</h1>
             </div>
 
-            <div class="trace">
-                <pre><code>{{ trace }}</code></pre>
-            </div>
-
             <p><strong>Error action: </strong>{{ errorAction }}</p>
             <p><strong>Current action: </strong>{{ beginAction }}</p>
 
             <div class="accordion" id="accordionPanelsStayOpenExample">
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseTrace" aria-expanded="true" aria-controls="panelsStayOpen-collapseTrace">
+                            Stack trace
+                        </button>
+                    </h2>
+                    <div id="panelsStayOpen-collapseTrace" class="accordion-collapse collapse show">
+                        <div class="accordion-body">
+                            <pre><code>{{ trace }}</code></pre>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="accordion-item">
                     <h2 class="accordion-header">
                         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseAction" aria-expanded="false" aria-controls="panelsStayOpen-collapseAction">
@@ -46,7 +55,7 @@
                 <div class="accordion-item">
                     <h2 class="accordion-header">
                         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseSuccess" aria-expanded="false" aria-controls="panelsStayOpen-collapseSuccess">
-                            Success log
+                            Success actions
                         </button>
                     </h2>
                     <div id="panelsStayOpen-collapseSuccess" class="accordion-collapse collapse">
@@ -63,7 +72,7 @@
                 <div class="accordion-item">
                     <h2 class="accordion-header">
                         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseFail" aria-expanded="false" aria-controls="panelsStayOpen-collapseFail">
-                            Fail log
+                            Fail actions
                         </button>
                     </h2>
                     <div id="panelsStayOpen-collapseFail" class="accordion-collapse collapse">
@@ -80,7 +89,7 @@
                 <div class="accordion-item">
                     <h2 class="accordion-header">
                         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseRetries" aria-expanded="false" aria-controls="panelsStayOpen-collapseRetries">
-                            Retries log
+                            Retries actions
                         </button>
                     </h2>
                     <div id="panelsStayOpen-collapseRetries" class="accordion-collapse collapse">
