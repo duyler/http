@@ -56,6 +56,7 @@ final class ErrorHandler
         if ('DEV' === strtoupper($this->config->env('ENV'))) {
             $data = [];
             $data['actionLog'] = $log->mainEventLog;
+            $data['eventLog'] = $log->eventLog;
             $data['successLog'] = $log->successLog;
             $data['failLog'] = $log->failLog;
             $data['retriesLog'] = $log->retriesLog;
