@@ -53,28 +53,28 @@ final class ErrorHandler
 
     private function createResponse(Throwable $t, int $status, Log $log): ResponseInterface
     {
-        if ('DEV' !== strtoupper($this->config->env('ENV'))) {
-            foreach ($this->errorHandlerProvider->getHandlers() as $errorHandler) {
-                if ($errorHandler->is($t)) {
-                    return $errorHandler->handle($t, $log);
-                }
-            }
-            return new TextResponse($status . ' ' . ResponseStatus::ERROR_PHRASES[$status] ?? '', $status);
+        if ('DEV' === strtoupper($this->config->env('ENV'))) {
+            $data = [];
+            $data['actionLog'] = $log->mainEventLog;
+            $data['successLog'] = $log->successLog;
+            $data['failLog'] = $log->failLog;
+            $data['retriesLog'] = $log->retriesLog;
+            $data['suspendedLog'] = $log->suspendedLog;
+            $data['beginAction'] = $log->beginAction;
+            $data['errorAction'] = $log->errorAction;
+            $data['message'] = $t->getMessage();
+            $data['status'] = $status;
+            $data['trace'] = $t->getTraceAsString();
+
+            $message = $this->renderer->render('error', $data);
+            return new HtmlResponse($message, $status);
         }
 
-        $data = [];
-        $data['actionLog'] = $log->mainEventLog;
-        $data['successLog'] = $log->successLog;
-        $data['failLog'] = $log->failLog;
-        $data['retriesLog'] = $log->retriesLog;
-        $data['suspendedLog'] = $log->suspendedLog;
-        $data['beginAction'] = $log->beginAction;
-        $data['errorAction'] = $log->errorAction;
-        $data['message'] = $t->getMessage();
-        $data['status'] = $status;
-        $data['trace'] = $t->getTraceAsString();
-
-        $message = $this->renderer->render('error', $data);
-        return new HtmlResponse($message, $status);
+        foreach ($this->errorHandlerProvider->getHandlers() as $errorHandler) {
+            if ($errorHandler->is($t)) {
+                return $errorHandler->handle($t, $log);
+            }
+        }
+        return new TextResponse($status . ' ' . ResponseStatus::ERROR_PHRASES[$status] ?? '', $status);
     }
 }
