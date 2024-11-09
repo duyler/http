@@ -53,7 +53,7 @@ final class ErrorHandler
 
     private function createResponse(Throwable $t, int $status, Log $log): ResponseInterface
     {
-        if ('PROD' === strtoupper($this->config->env('ENV'))) {
+        if ('DEV' !== strtoupper($this->config->env('ENV'))) {
             foreach ($this->errorHandlerProvider->getHandlers() as $errorHandler) {
                 if ($errorHandler->is($t)) {
                     return $errorHandler->handle($t, $log);
