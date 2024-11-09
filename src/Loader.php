@@ -16,6 +16,7 @@ use Duyler\Http\Action\Request;
 use Duyler\Http\Action\Router;
 use Duyler\Http\Event\Response;
 use Duyler\Http\Factory\CreateRequestArgumentFactory;
+use Duyler\Http\State\HandleEndStateHandler;
 use Duyler\Router\CurrentRoute;
 use Duyler\Router\RouteCollection;
 use Duyler\Router\Router as HttpRouter;
@@ -73,9 +74,13 @@ class Loader implements PackageLoaderInterface
             externalAccess: true,
         );
 
+        $endStateHandler = new HandleEndStateHandler();
+
         $loaderService->addAction($requestAction);
         $loaderService->addAction($routingAction);
         $loaderService->addAction($responseAction);
+
+        $loaderService->addStateHandler($endStateHandler);
 
         $loaderService->addSharedService(
             new SharedService(
