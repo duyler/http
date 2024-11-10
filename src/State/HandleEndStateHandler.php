@@ -16,7 +16,7 @@ class HandleEndStateHandler implements MainEndStateHandlerInterface
     #[Override]
     public function handle(StateMainEndService $stateService, StateContext $context): void
     {
-        if (false === $stateService->resultIsExists(Response::ResponseHasBeenSent)) {
+        if (false === $stateService->resultIsExists(Response::ResponseCreated)) {
             throw new NotImplementedHttpException();
         }
     }
