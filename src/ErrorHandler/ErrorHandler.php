@@ -53,7 +53,7 @@ final class ErrorHandler
 
     private function createResponse(Throwable $t, int $status, Log $log): ResponseInterface
     {
-        if ('DEV' === strtoupper($this->config->env('ENV'))) {
+        if ('DEV' === strtoupper($this->config->env('APP_ENV', 'dev'))) {
             $data = [];
             $data['actionLog'] = $log->mainEventLog;
             $data['eventLog'] = $log->eventLog;
