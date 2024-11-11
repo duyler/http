@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Duyler\Http\ErrorHandler;
 
-use Duyler\TwigWrapper\TwigConfigDto;
+use Duyler\TwigWrapper\TwigConfig;
 use Duyler\TwigWrapper\TwigWrapper;
 
 final class ErrorRenderer
@@ -14,7 +14,7 @@ final class ErrorRenderer
     public function __construct()
     {
         $viewPath = dirname(__DIR__, 2) . '/resources/views';
-        $config = new TwigConfigDto($viewPath);
+        $config = new TwigConfig($viewPath);
         $this->twig = new TwigWrapper($config);
     }
 
