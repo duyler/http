@@ -40,7 +40,8 @@ class Loader implements PackageLoaderInterface
             listen: ['Http.CreateRawRequest'],
             argument: ServerRequestInterface::class,
             argumentFactory: CreateRequestArgumentFactory::class,
-            contract: ServerRequestInterface::class,
+            type: ServerRequestInterface::class,
+            immutable: false,
             externalAccess: true,
         );
 
@@ -62,7 +63,7 @@ class Loader implements PackageLoaderInterface
             },
             listen: ['Http.CreateRawRequest'],
             argument: ServerRequestInterface::class,
-            contract: CurrentRoute::class,
+            type: CurrentRoute::class,
         );
 
         $responseAction = new Action(
@@ -70,7 +71,8 @@ class Loader implements PackageLoaderInterface
             handler: fn(ActionContext $context) => $context->argument(),
             listen: [Response::ResponseCreated],
             argument: ResponseInterface::class,
-            contract: ResponseInterface::class,
+            type: ResponseInterface::class,
+            immutable: false,
             externalAccess: true,
         );
 
@@ -91,17 +93,20 @@ class Loader implements PackageLoaderInterface
 
         $loaderService->addEvent(new Event(
             id: 'Http.CreateRawRequest',
-            contract: ServerRequestInterface::class,
+            type: ServerRequestInterface::class,
+            immutable: false,
         ));
 
         $loaderService->addEvent(new Event(
             id: Response::ResponseCreated,
-            contract: ResponseInterface::class,
+            type: ResponseInterface::class,
+            immutable: false,
         ));
 
         $loaderService->addEvent(new Event(
             id: Response::ResponseHasBeenSent,
-            contract: ResponseInterface::class,
+            type: ResponseInterface::class,
+            immutable: false,
         ));
     }
 }
