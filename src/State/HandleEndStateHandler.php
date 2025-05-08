@@ -16,8 +16,10 @@ class HandleEndStateHandler implements MainEndStateHandlerInterface
     #[Override]
     public function handle(StateMainEndService $stateService, StateContext $context): void
     {
-        if (false === $stateService->resultIsExists(Response::ResponseCreated)) {
-            throw new NotImplementedHttpException();
+        if ($stateService->resultIsExists('Http.CreateRawRequest')) {
+            if (false === $stateService->resultIsExists(Response::ResponseCreated)) {
+                throw new NotImplementedHttpException();
+            }
         }
     }
 }
