@@ -20,7 +20,7 @@ use HttpSoft\Response\TextResponse;
 use Psr\Http\Message\ResponseInterface;
 use Throwable;
 
-final class ErrorHandler
+final readonly class ErrorHandler
 {
     public function __construct(
         private ErrorHandlerProvider $errorHandlerProvider,
@@ -53,7 +53,7 @@ final class ErrorHandler
 
     private function createResponse(Throwable $t, int $status, Log $log): ResponseInterface
     {
-        if ('DEV' === strtoupper($this->config->env('APP_ENV', 'dev'))) {
+        if ('DEV' === strtoupper((string) $this->config->env('APP_ENV', 'dev'))) {
             $data = [];
             $data['actionLog'] = $log->mainEventLog;
             $data['eventLog'] = $log->eventLog;
@@ -76,6 +76,6 @@ final class ErrorHandler
                 return $errorHandler->handle($t, $log);
             }
         }
-        return new TextResponse($status . ' ' . ResponseStatus::ERROR_PHRASES[$status] ?? '', $status);
+        return new TextResponse($status . ' ' . ResponseStatus::ERROR_PHRASES[$status], $status);
     }
 }

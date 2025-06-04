@@ -20,20 +20,22 @@ use Duyler\Http\State\HandleEndStateHandler;
 use Duyler\Router\CurrentRoute;
 use Duyler\Router\RouteCollection;
 use Duyler\Router\Router as HttpRouter;
+use Override;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
 class Loader implements PackageLoaderInterface
 {
     public function __construct(
-        private ContainerInterface $container,
+        private readonly ContainerInterface $container,
     ) {}
 
+    #[Override]
     public function load(LoaderServiceInterface $loaderService): void
     {
         $requestAction = new Action(
             id: Request::GetRequest,
-            handler: fn(ActionContext $context) => $context->argument(),
+            handler: fn(ActionContext $context): ServerRequestInterface => $context->argument(),
             required: [
                 Router::GetRoute,
             ],
@@ -47,11 +49,11 @@ class Loader implements PackageLoaderInterface
 
         $routingAction = new Action(
             id: Router::GetRoute,
-            handler: function (ActionContext $context) {
+            handler: function (ActionContext $context): Result {
                 /** @var ServerRequestInterface $request */
                 $request = $context->argument();
                 return $context->call(
-                    function (HttpRouter $router, RouteCollection $routeCollection) use ($request) {
+                    function (HttpRouter $router, RouteCollection $routeCollection) use ($request): Result {
                         $currentRoute = $router->startRouting(
                             routeCollection: $routeCollection,
                             serverRequest: $request,
@@ -68,7 +70,7 @@ class Loader implements PackageLoaderInterface
 
         $responseAction = new Action(
             id: 'Http.PersistResponse',
-            handler: fn(ActionContext $context) => $context->argument(),
+            handler: fn(ActionContext $context): ResponseInterface => $context->argument(),
             listen: [Response::ResponseCreated],
             argument: ResponseInterface::class,
             type: ResponseInterface::class,

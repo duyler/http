@@ -9,8 +9,8 @@ use Duyler\DI\ContainerInterface;
 class ErrorHandlerProvider
 {
     public function __construct(
-        private ContainerInterface $container,
-        private ErrorHandlerConfig $errorHandlerConfig,
+        private readonly ContainerInterface $container,
+        private readonly ErrorHandlerConfig $errorHandlerConfig,
     ) {}
 
     /** @return ErrorHandlerInterface[]  */
