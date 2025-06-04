@@ -20,6 +20,10 @@ class CreateRequestArgumentFactory
         $currentRoute = $context->getType(Router::GetRoute);
 
         if ($currentRoute->status) {
+            /**
+             * @var string $key
+             * @var mixed $value
+             */
             foreach ($currentRoute->attributes as $key => $value) {
                 $request = $request->withAttribute($key, $value);
             }

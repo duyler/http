@@ -10,16 +10,18 @@ use Duyler\EventBus\State\Service\StateMainAfterService;
 use Duyler\EventBus\State\StateContext;
 use Duyler\Http\Event\Response;
 use Duyler\Http\RuntimeConfig;
+use Override;
 use Psr\Http\Message\ResponseInterface;
 use Spiral\RoadRunner\Http\PSR7Worker;
 
 class HandleResponseStateHandler implements MainAfterStateHandlerInterface
 {
     public function __construct(
-        private PSR7Worker $worker,
-        private RuntimeConfig $config,
+        private readonly PSR7Worker $worker,
+        private readonly RuntimeConfig $config,
     ) {}
 
+    #[Override]
     public function handle(StateMainAfterService $stateService, StateContext $context): void
     {
         $result = $stateService->getResult('Http.PersistResponse');
@@ -40,6 +42,7 @@ class HandleResponseStateHandler implements MainAfterStateHandlerInterface
         );
     }
 
+    #[Override]
     public function observed(StateContext $context): array
     {
         return ['Http.PersistResponse'];

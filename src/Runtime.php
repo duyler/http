@@ -16,7 +16,7 @@ use Spiral\RoadRunner\Http\PSR7Worker;
 use Spiral\RoadRunner\Worker;
 use Throwable;
 
-final class Runtime
+final readonly class Runtime
 {
     private BusInterface $bus;
     private ErrorHandler $errorHandler;

@@ -7,7 +7,7 @@ namespace Duyler\Http\ErrorHandler;
 use Duyler\TwigWrapper\TwigConfig;
 use Duyler\TwigWrapper\TwigWrapper;
 
-final class ErrorRenderer
+final readonly class ErrorRenderer
 {
     private TwigWrapper $twig;
 
