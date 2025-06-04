@@ -2,27 +2,27 @@
 
 declare(strict_types=1);
 
-namespace Duyler\Http\Runtime;
+namespace Duyler\Http;
 
 use Duyler\Builder\ApplicationBuilder;
 use Duyler\DI\ContainerInterface;
 use Duyler\EventBus\BusInterface;
 use Duyler\EventBus\Dto\Event;
 use Duyler\Http\ErrorHandler\ErrorHandler;
-use Duyler\Http\RuntimeConfig;
-use Duyler\Http\RuntimeInterface;
 use Duyler\Http\State\HandleResponseStateHandler;
 use Nyholm\Psr7\Factory\Psr17Factory;
+use Psr\Log\LoggerInterface;
 use Spiral\RoadRunner\Http\PSR7Worker;
 use Spiral\RoadRunner\Worker;
 use Throwable;
 
-final class RoadRunnerRuntime implements RuntimeInterface
+final class Runtime
 {
     private BusInterface $bus;
     private ErrorHandler $errorHandler;
     private ContainerInterface $container;
     private PSR7Worker $worker;
+    private LoggerInterface $logger;
 
     public function __construct()
     {
@@ -47,6 +47,12 @@ final class RoadRunnerRuntime implements RuntimeInterface
             ->build();
 
         $this->errorHandler = $this->container->get(ErrorHandler::class);
+        $this->logger = $worker->getLogger();
+
+        $this->container->set($this->logger);
+        $this->container->bind([
+            LoggerInterface::class => $this->logger::class,
+        ]);
     }
 
     public function run(): void
@@ -63,7 +69,6 @@ final class RoadRunnerRuntime implements RuntimeInterface
                     id: 'Http.CreateRawRequest',
                     data: $request,
                 );
-
                 $this->bus->dispatchEvent($event);
                 $this->bus->run();
 
@@ -73,6 +78,11 @@ final class RoadRunnerRuntime implements RuntimeInterface
                 $this->finalize();
             }
         }
+    }
+
+    public function getLogger(): LoggerInterface
+    {
+        return $this->logger;
     }
 
     private function finalize(): void

@@ -3,7 +3,11 @@
     "type": "library",
     "description": "Duyler http handler",
     "license": "MIT",
-    "keywords": [],
+    "keywords": [
+        "roadrunner",
+        "http",
+        "server"
+    ],
     "authors": [
         {
             "name": "Mikhail Ilinsky",
