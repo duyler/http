@@ -14,10 +14,10 @@ class CreateRequestArgumentFactory
     public function __invoke(FactoryContext $context): ServerRequestInterface
     {
         /** @var ServerRequestInterface $request */
-        $request = $context->getType('Http.CreateRawRequest');
+        $request = $context->getTypeById('Http.CreateRawRequest');
 
         /** @var CurrentRoute $currentRoute */
-        $currentRoute = $context->getType(Router::GetRoute);
+        $currentRoute = $context->getTypeById(Router::GetRoute);
 
         if ($currentRoute->status) {
             /**
