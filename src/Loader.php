@@ -113,5 +113,8 @@ class Loader implements PackageLoaderInterface
     }
 
     #[Override]
-    public function afterLoadBuild(LoaderServiceInterface $loaderService): void {}
+    public function afterLoadBuild(LoaderServiceInterface $loaderService): void
+    {
+        // No implementation needs
+    }
 }
