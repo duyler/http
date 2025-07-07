@@ -31,7 +31,7 @@ class Loader implements PackageLoaderInterface
     ) {}
 
     #[Override]
-    public function load(LoaderServiceInterface $loaderService): void
+    public function beforeLoadBuild(LoaderServiceInterface $loaderService): void
     {
         $requestAction = new Action(
             id: Request::GetRequest,
@@ -110,5 +110,11 @@ class Loader implements PackageLoaderInterface
             type: ResponseInterface::class,
             immutable: false,
         ));
+    }
+
+    #[Override]
+    public function afterLoadBuild(LoaderServiceInterface $loaderService): void
+    {
+        // No implementation needs
     }
 }
